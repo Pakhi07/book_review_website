@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Books - BetterReads</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav id="sidebar">
+        <div class="nav-header">
+            <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
+        </div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="browse.html">Browse Books</a>
+            <a href="bookshelf.html">Your Bookshelf</a>
+            <a href="reviews.html">Reviews</a>
+        </div>
+        <div class="profile-icon">
+            <img src="assets/user.png" alt="Profile Icon" class="profile-img">
+        </div>
+    </nav>
+
+
+    <!-- Main Content -->
+    <main>
+        <h1>Browse Books</h1>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" placeholder="Search for books...">
+            <button class="search-btn">Search</button>
+        </div>
+
+        <!-- Genres List -->
+        <div class="genres">
+            <h2>Browse by Genre</h2>
+            <div class="genre-tags">
+                <span class="genre-tag" onclick="showBooks('fiction')">Fiction</span>
+                <span class="genre-tag" onclick="showBooks('mystery')">Mystery</span>
+                <span class="genre-tag" onclick="showBooks('romance')">Romance</span>
+                <span class="genre-tag" onclick="showBooks('fantasy')">Fantasy</span>
+                <span class="genre-tag" onclick="showBooks('non-fiction')">Non-Fiction</span>
+                <span class="genre-tag" onclick="showBooks('biography')">Biography</span>
+                <span class="genre-tag" onclick="showBooks('science')">Science</span>
+            </div>
+        </div>
+
+        <!-- Books List (Dynamically Updated) -->
+        <div class="book-list" id="book-list">
+            <!-- Books will be displayed here -->
+        </div>
+    </main>
+
+    <script src="browse.js"></script>
+</body>
+</html>
