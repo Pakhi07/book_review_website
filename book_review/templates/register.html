@@ -4,19 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Register</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
-            <h1>Welcome Back!</h1>
-            <form method="post" action="{% url 'login' %}">
+            <h1>Create an Account</h1>
+            <form method="post" action="{% url 'register' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" class="btn-login">Login</button>
+                <button type="submit" class="btn-register">Register</button>
             </form>
-            <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+            <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
         </div>
     </div>
 </body>

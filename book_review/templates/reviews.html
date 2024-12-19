@@ -1,10 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Reviews - BetterReads</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 
@@ -14,47 +16,51 @@
             <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
         </div>
         <div class="nav-links">
-            <a href="home.html">Home</a>
-            <a href="browse.html">Browse Books</a>
-            <a href="bookshelf.html">Your Bookshelf</a>
-            <a href="reviews.html">Reviews</a>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'browse' %}">Browse Books</a>
+            <a href="{% url 'bookshelf' %}">Your Bookshelf</a>
+            <a href="{% url 'reviews' %}">Reviews</a>
         </div>
         <div class="profile-icon">
-            <img src="assets/user.png" alt="Profile Icon" class="profile-img">
+            <img src="{% static 'assets/user.png' %}" alt="Profile Icon" class="profile-img">
         </div>
     </nav>
-
+    
     <!-- Main Content -->
     <main>
         <h1>Book Reviews</h1>
         
-        <!-- Review List -->
+        <!-- Display Reviews -->
         <div class="review-list">
-            <div class="review-card">
-                <div class="review-header">
-                    <span class="review-title">Book Title</span>
-                    <span class="review-date">October 15, 2024</span>
-                </div>
-                <div class="review-body">
-                    <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."</p>
-                </div>
-            </div>
-            
-            <div class="review-card">
-                <div class="review-header">
-                    <span class="review-title">Book Title</span>
-                    <span class="review-date">October 12, 2024</span>
-                </div>
-                <div class="review-body">
-                    <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."</p>
-                </div>
-            </div>
-            
-            <!-- More reviews can go here -->
+            {% if reviews %}
+                {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span class="review-title">{{ review.book.title }}</span>
+                            <span class="review-date">{{ review.created_at|date:"F j, Y" }}</span>
+                        </div>
+                        <div class="review-body">
+                            <p>"{{ review.comment }}"</p>
+                            <p><strong>Rating:</strong> {{ review.rating }} / 5</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No reviews yet. Start by adding your review!</p>
+            {% endif %}
         </div>
+
+        <!-- Add Review Form -->
+        <h2>Add Your Review</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit Review</button>
+        </form>
+
     </main>
 
-    <script src="scripts.js"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
 
 </body>
 </html>

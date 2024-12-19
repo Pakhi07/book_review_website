@@ -1,10 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - BetterReads</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 
@@ -14,45 +16,60 @@
             <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
         </div>
         <div class="nav-links">
-            <a href="home.html">Home</a>
-            <a href="browse.html">Browse Books</a>
-            <a href="bookshelf.html">Your Bookshelf</a>
-            <a href="reviews.html">Reviews</a>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'browse' %}">Browse Books</a>
+            <a href="{% url 'bookshelf' %}">Your Bookshelf</a>
+            <a href="{% url 'reviews' %}">Reviews</a>
         </div>
         <div class="profile-icon">
-            <img src="assets/user.png" alt="Profile Icon" class="profile-img">
+            <img src="{% static 'assets/user.png' %}" alt="Profile Icon" class="profile-img">
         </div>
     </nav>
 
     <main>
         <h1>Welcome to BetterReads</h1>
-        
+
         <h2>New Releases This Week</h2>
         <div class="book-list">
-            <div class="book-item" data-title="Book 1" data-desc="A thrilling new release!">
-                <img src="assets/pj_lightning_thief.jpg" alt="Book 1 Icon">
-                <div class="book-details">
-                    <h3>Book 1 Title</h3>
-                    <p>A brief description of Book 1 goes here. It's an exciting new release you don’t want to miss!</p>
-                    <button class="add-to-bookshelf" onclick="addToBookshelf(this)">
-                        <span>+</span> Bookshelf
-                    </button>
+            {% for book in new_releases %}
+                <div class="book-item" data-title="{{ book.title }}" data-desc="{{ book.description }}">
+                    <img src="{{ book.cover_image }}" alt="{{ book.title }} Cover">
+                    <div class="book-details">
+                        <h3>{{ book.title }}</h3>
+                        <p><strong>Author:</strong> {{ book.author }}</p>
+                        <p>{{ book.description|truncatewords:20 }}</p>
+                        <button class="add-to-bookshelf" onclick="addToBookshelf(this)">
+                            <span>+</span> Bookshelf
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="book-item" data-title="Book 2" data-desc="An intriguing mystery!">
-                <img src="assets/pj_lightning_thief.jpg" alt="Book 2 Icon">
-                <div class="book-details">
-                    <h3>Book 2 Title</h3>
-                    <p>Explore its intriguing storyline and characters in Book 2.</p>
-                    <button class="add-to-bookshelf" onclick="addToBookshelf(this)">
-                        <span>+</span> Bookshelf
-                    </button>
-                </div>
-            </div>
-            <!-- More books will be displayed here as needed -->
+            {% endfor %}
         </div>
+
+        <h2>Recommended for You</h2>
+        <div class="book-list">
+            {% if recommended_books %}
+                {% for book in recommended_books %}
+                    <div class="book-item">
+                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }} Cover">
+                        <div class="book-details">
+                            <h3>{{ book.title }}</h3>
+                            <p><strong>Author:</strong> {{ book.author }}</p>
+                            <p><strong>Genre:</strong> {{ book.genre }}</p>
+                            <p>{{ book.description|truncatewords:20 }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% elif no_ratings_message %}
+                <div class="no-recommendations">
+                    <p>{{ no_ratings_message }}</p>
+                    <a href="{% url 'browse' %}" class="btn">Browse Books</a>
+                </div>
+            {% endif %}
+        </div>
+
     </main>
 
-    <script src="scripts.js"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
 </body>
 </html>

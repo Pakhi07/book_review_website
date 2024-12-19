@@ -1,10 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Bookshelf - BetterReads</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
 
@@ -14,13 +16,13 @@
             <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
         </div>
         <div class="nav-links">
-            <a href="home.html">Home</a>
-            <a href="browse.html">Browse Books</a>
-            <a href="bookshelf.html" class="active">Your Bookshelf</a>
-            <a href="reviews.html">Reviews</a>
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'browse' %}">Browse Books</a>
+            <a href="{% url 'bookshelf' %}">Your Bookshelf</a>
+            <a href="{% url 'reviews' %}">Reviews</a>
         </div>
         <div class="profile-icon">
-            <img src="assets/user.png" alt="Profile Icon" class="profile-img">
+            <img src="{% static 'assets/user.png' %}" alt="Profile Icon" class="profile-img">
         </div>
     </nav>
 
@@ -31,6 +33,6 @@
         </div>
     </main>
 
-    <script src="scripts.js"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
 </body>
 </html>

@@ -1,14 +1,17 @@
 from django.urls import path
-from .views import BookListView, ReviewListView
 from . import views
 
 urlpatterns = [
-    path('api/books/', BookListView.as_view(), name='book-list'),
-    path('api/reviews/', ReviewListView.as_view(), name='review-list'),
-    path('', views.home_view, name='home'),  # Home page
-    path('login/', views.login_view, name='login'),  # Login page
-    path('profile/', views.profile_view, name='profile'),  # Profile page
-    path('reviews/', views.reviews_view, name='reviews'),  # Reviews page
-    path('bookshelf/', views.bookshelf_view, name='bookshelf'),  # Bookshelf page
-
+    path('api/books/', views.BookListView.as_view(), name='book-list'),
+    # path('api/reviews/', views.ReviewListView.as_view(), name='review-list'),
+    path('', views.HomeView.as_view(), name='home'),
+    path('register/', views.RegisterView.as_view(), name='register'),
+    path('login/', views.LoginView.as_view(), name='login'),
+    path('logout/', views.LogoutView.as_view(), name='logout'),
+    path('profile/', views.ProfileView.as_view(), name='profile'),
+    path('reviews/', views.ReviewsView.as_view(), name='reviews'),
+    path('reviews/<int:book_id>/', views.ReviewsView.as_view(), name='reviews'),
+    path('bookshelf/', views.BookshelfView.as_view(), name='bookshelf'),
+    path('browse/', views.BrowseView.as_view(), name='browse'),
+    
 ]
