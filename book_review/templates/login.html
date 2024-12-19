@@ -1,22 +1,171 @@
 {% load static %}
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>Login | BookShelf</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            background-color: #fff5f2;
+        }
+
+        .page-container {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 2rem;
+        }
+
+        .illustration-container {
+            flex: 1;
+            max-width: 600px;
+            display: none; /* Hidden on mobile */
+        }
+
+        .illustration-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 1rem;
+        }
+
+        .login-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #f1656b, #d2c2b5);
+            border-radius: 8px 8px 0 0;
+        }
+
+        h1 {
+            color: #2d3436;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            color: #636e72;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input {
+            padding: 0.75rem;
+            border: 2px solid #dfe6e9;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+
+        button {
+            background: linear-gradient(90deg, #d2c2b5, #e1d5c7);
+            color: white;
+            border: none;
+            padding: 0.875rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            margin-top: 0.5rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .register-prompt {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #636e72;
+            font-size: 0.9rem;
+        }
+
+        .register-prompt a {
+            color: #f1656b;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-prompt a:hover {
+            text-decoration: underline;
+        }
+
+        @media (min-width: 768px) {
+            .illustration-container {
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-card">
+    <div class="page-container">
+        <div class="illustration-container">
+            <img src="{% static 'assets/bookshelf.jpg' %}" alt="Cozy bookshelf illustration">
+        </div>
+        <div class="login-card">
             <h1>Welcome Back!</h1>
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn-login">Login</button>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit">Login</button>
             </form>
-            <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+            <p class="register-prompt">
+                Don't have an account? <a href="{% url 'register' %}">Register</a>
+            </p>
         </div>
     </div>
 </body>

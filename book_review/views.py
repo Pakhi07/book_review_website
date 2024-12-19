@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Book, Review
+from .models import Profile, Book, Review
 from .serializers import BookSerializer, ReviewSerializer
 from django.views.generic import TemplateView
 from django.shortcuts import render
@@ -17,12 +17,15 @@ from django.contrib.auth import logout
 from django.views import View
 from django.contrib.auth.forms import UserCreationForm
 from rest_framework_simplejwt.tokens import RefreshToken
-from .forms import ReviewForm
+from .forms import ReviewForm, ProfileUpdateForm
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.db import models
 import os
 from dotenv import load_dotenv
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+
 
 load_dotenv()
 
@@ -35,34 +38,6 @@ class BookListView(APIView):
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
 
-# class ReviewListView(APIView):
-#     def post(self, request):
-#         serializer = ReviewSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=201)
-#         return Response(serializer.errors, status=400)
-
-# def index(request):
-#     return render(request, 'index.html')
-
-# def home_view(request):
-#     return render(request, 'home.html')
-
-# def login_view(request):
-#     return render(request, 'login.html')
-
-# def profile_view(request):
-#     return render(request, 'profile.html')
-
-# def reviews_view(request):
-#     return render(request, 'reviews.html')
-
-# def bookshelf_view(request):
-#     return render(request, 'bookshelf.html')
-
-# def browse_view(request):
-#     return render(request, 'browse.html')
 
 class RegisterView(FormView):
     template_name = 'register.html'
@@ -77,10 +52,22 @@ class RegisterView(FormView):
         return super().form_valid(form)
 
 
+class SetPreferencesView(LoginRequiredMixin, FormView):
+    template_name = 'preferences.html'
+    form_class = ProfileUpdateForm
+    success_url = '/'  # Redirect to home page after saving preferences
+
+    def form_valid(self, form):
+        # Save user preferences
+        profile = form.save(commit=False)
+        profile.user = self.request.user
+        profile.save()
+        return super().form_valid(form)
+
 # Login View
 class LoginView(FormView):
     template_name = 'login.html'
-    success_url = reverse_lazy('home')  # Redirect to home after login
+    success_url = reverse_lazy('home')  # Default redirect to home after login
 
     # Custom form to handle username and password
     class LoginForm(forms.Form):
@@ -102,11 +89,17 @@ class LoginView(FormView):
         if user is not None:
             login(self.request, user)
             messages.success(self.request, 'You have successfully logged in!')
+
+            # Check if the user has preferences set
+            if not hasattr(user, 'profile') or not user.profile.favorite_genre:
+                # Redirect to preferences form if the user is new or preferences are not set
+                return redirect('set_preferences')
+            
+            # Redirect to home if preferences are already set
             return super().form_valid(form)
         else:
             form.add_error(None, 'Invalid username or password.')
             return self.form_invalid(form)
-        
 
 class LogoutView(View):
     def get(self, request):
@@ -118,73 +111,93 @@ class LogoutView(View):
 class HomeView(TemplateView):
     template_name = 'home.html'
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        google_books_api_key = my_api_key  # Replace with your API key
-        google_books_url = f'https://www.googleapis.com/books/v1/volumes?q=new+releases&key={google_books_api_key}'
-        response = requests.get(google_books_url)
-        books_data = response.json()
+        # Fetch Google Books API key
+        google_books_api_key = my_api_key
 
-        # Extract book details from the API response
-        new_releases = []
-        if 'items' in books_data:
-            for item in books_data['items']:
-                book = item['volumeInfo']
-                new_releases.append({
-                    'title': book.get('title', 'No Title'),
-                    'author': ', '.join(book.get('authors', ['Unknown Author'])),
-                    'description': book.get('description', 'No description available'),
-                    'cover_image': book.get('imageLinks', {}).get('thumbnail', ''),
-                })
+        # Fetch new releases from Google Books API
+        try:
+            google_books_url = f'https://www.googleapis.com/books/v1/volumes?q=new+releases&key={google_books_api_key}'
+            response = requests.get(google_books_url)
+            response.raise_for_status()
+            books_data = response.json()
+
+            # Extract book details
+            new_releases = [
+                {
+                    'title': item['volumeInfo'].get('title', 'No Title'),
+                    'author': ', '.join(item['volumeInfo'].get('authors', ['Unknown Author'])),
+                    'description': item['volumeInfo'].get('description', 'No description available'),
+                    'cover_image': item['volumeInfo'].get('imageLinks', {}).get('thumbnail', ''),
+                }
+                for item in books_data.get('items', [])
+            ]
+        except requests.exceptions.RequestException:
+            new_releases = []
 
         context['new_releases'] = new_releases
 
-        # Fetch all reviews
-        reviews = Review.objects.all()
+        # Get the logged-in user's profile
+        if self.request.user.is_authenticated:
+            profile = get_object_or_404(Profile, user=self.request.user)
 
-        # If no reviews exist, show a fallback message
-        if not reviews.exists():
-            context['recommended_books'] = None
-            context['no_ratings_message'] = "No recommendations available. Start rating books to get personalized suggestions!"
-            return context
+            # Fetch user reviews
+            user_reviews = Review.objects.filter(user=self.request.user)
 
-        # Get the current user's reviews
-        user_reviews = reviews.filter(user=self.request.user)
+            # If no reviews, use profile preferences for recommendations
+            if not user_reviews.exists():
+                search_query = f"subject:{profile.favorite_genre} inauthor:{profile.favorite_author}"
+            else:
+                # Get the latest rated book
+                latest_review = user_reviews.order_by('-created_at').first()
+                latest_book = latest_review.book
+                user_rating = latest_review.rating
 
-        if not user_reviews.exists():
-            context['recommended_books'] = None
-            context['no_ratings_message'] = "No recommendations available. Start rating books to get personalized suggestions!"
-            return context
+                # Use the user's rating to adjust the search query
+                search_query = (
+                    f"inauthor:{latest_book.author}" if user_rating >= 3
+                    else f"subject:-{latest_book.genre}"
+                )
 
-        # Get the latest rated book by the user
-        latest_review = user_reviews.order_by('-created_at').first()
-        latest_book = latest_review.book
-        user_rating = latest_review.rating
+            # Fetch recommendations from Google Books API
+            try:
+                google_books_url = f'https://www.googleapis.com/books/v1/volumes?q={search_query}&key={google_books_api_key}'
+                response = requests.get(google_books_url)
+                response.raise_for_status()
+                books_data = response.json()
 
-        # Recommendation logic
-        if user_rating >= 3:
-            # Recommend books by the same author or genre
-            recommended_books = Book.objects.filter(
-                models.Q(author=latest_book.author) | models.Q(genre=latest_book.genre)
-            ).exclude(id=latest_book.id).distinct()
+                recommended_books = [
+                    {
+                        'title': item['volumeInfo'].get('title', 'No Title'),
+                        'author': ', '.join(item['volumeInfo'].get('authors', ['Unknown Author'])),
+                        'description': item['volumeInfo'].get('description', 'No description available'),
+                        'cover_image': item['volumeInfo'].get('imageLinks', {}).get('thumbnail', ''),
+                    }
+                    for item in books_data.get('items', [])
+                ]
+            except requests.exceptions.RequestException:
+                recommended_books = []
+
+            context['recommended_books'] = recommended_books
         else:
-            # Recommend books of different genres/authors
-            recommended_books = Book.objects.exclude(
-                models.Q(author=latest_book.author) | models.Q(genre=latest_book.genre)
-            ).distinct()
+            # No user logged in
+            context['recommended_books'] = None
 
-        # Attach recommendations to context
-        context['recommended_books'] = recommended_books
+        # Add fallback message if no recommendations
+        if not context['recommended_books']:
+            context['no_ratings_message'] = "No recommendations available. Start rating books to get personalized suggestions!"
+
         return context
-    
 
 class ProfileView(TemplateView):
     template_name = 'profile.html'
 
 class ReviewsView(View):
     def get(self, request):
-        reviews = Review.objects.all()  # Fetch all reviews
+        reviews = Review.objects.filter(user=request.user)  # Fetch all reviews
         return render(request, 'reviews.html', {'reviews': reviews, 'message': 'No reviews yet.'})
 
 class NewReviewView(View):

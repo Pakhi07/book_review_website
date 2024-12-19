@@ -6,9 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - BetterReads</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
 </head>
 <body>
+    <div class="container">
 
     <!-- Navigation Bar -->
     <nav id="sidebar">
@@ -23,14 +26,19 @@
         </div>
         <div class="profile-icon">
             <img src="{% static 'assets/user.png' %}" alt="Profile Icon" class="profile-img">
+            <a href="{% url 'logout' %}">Logout</a>
         </div>
     </nav>
+</div>
 
+
+    <div class="main-content">
     <main>
         <h1>Welcome to BetterReads</h1>
 
         <h2>New Releases This Week</h2>
-        <div class="book-list">
+
+        <div class="book-slider new-releases-slider">
             {% for book in new_releases %}
                 <div class="book-item" data-title="{{ book.title }}" data-desc="{{ book.description }}">
                     <img src="{{ book.cover_image }}" alt="{{ book.title }} Cover">
@@ -47,7 +55,7 @@
         </div>
 
         <h2>Recommended for You</h2>
-        <div class="book-list">
+        <div class="book-slider recommended-books-slider">
             {% if recommended_books %}
                 {% for book in recommended_books %}
                     <div class="book-item">
@@ -69,7 +77,50 @@
         </div>
 
     </main>
+</div>
+    <!-- jQuery (necessary for Slick Slider) -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+    <!-- Slick Slider JS -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+        $('.book-slider').slick({
+            slidesToShow: 4,  // Show only 10 books at a time
+            slidesToScroll: 1,  // Scroll 1 book at a time
+            infinite: false,    // Set to false to prevent infinite scrolling
+            dots: true,         // Show navigation dots (optional)
+            arrows: true,       // Show navigation arrows (optional)
+            responsive: [
+                {
+                    breakpoint: 1024,
+                    settings: {
+                        slidesToShow: 5,  // For medium screens, show 5 books
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 768,
+                    settings: {
+                        slidesToShow: 3,  // For small screens, show 3 books
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 480,
+                    settings: {
+                        slidesToShow: 1,  // For very small screens, show 1 book
+                        slidesToScroll: 1
+                    }
+                }
+            ]
+        });
+    });
+
+
+    </script>
     <script src="{% static 'js/scripts.js' %}"></script>
+
 </body>
 </html>
