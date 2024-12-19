@@ -1,0 +1,43 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Review - BetterReads</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav id="sidebar">
+        <div class="nav-header">
+            <button class="toggle-btn" onclick="toggleSidebar()">&#9776;</button>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'browse' %}">Browse Books</a>
+            <a href="{% url 'bookshelf' %}">Your Bookshelf</a>
+            <a href="{% url 'reviews' %}">Reviews</a>
+        </div>
+        <div class="profile-icon">
+            <img src="{% static 'assets/user.png' %}" alt="Profile Icon" class="profile-img">
+        </div>
+    </nav>
+    
+    <main>
+        <h1>Write a New Review</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit Review</button>
+        </form>
+
+        <a href="{% url 'reviews' %}">Back to Reviews</a>
+    </main>
+
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>

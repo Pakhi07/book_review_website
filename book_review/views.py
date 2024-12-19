@@ -7,7 +7,6 @@ from django.shortcuts import render
 import requests
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
-from .models import Rating
 from django import forms
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
@@ -19,10 +18,16 @@ from django.views import View
 from django.contrib.auth.forms import UserCreationForm
 from rest_framework_simplejwt.tokens import RefreshToken
 from .forms import ReviewForm
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from django.db import models
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-
-my_api_key = "AIzaSyALS7QGQhjpmqrfJ9GX52Saj0tVqEU_Qyc"
+my_api_key = os.getenv('API_KEY')
 
 class BookListView(APIView):
     def get(self, request):
@@ -135,95 +140,74 @@ class HomeView(TemplateView):
 
         context['new_releases'] = new_releases
 
-        # Fetch new releases
-        # context['new_releases'] = Book.objects.all()[:5]  # Example: Fetch the first 5 books
+        # Fetch all reviews
+        reviews = Review.objects.all()
 
-        # Fetch user ratings
-        user_ratings = Rating.objects.filter(user=self.request.user)
-        
-        # If the user has no ratings, set a flag and return early
-        if user_ratings.count() == 0:
-            context['recommended_books'] = None  # No recommendations
+        # If no reviews exist, show a fallback message
+        if not reviews.exists():
+            context['recommended_books'] = None
             context['no_ratings_message'] = "No recommendations available. Start rating books to get personalized suggestions!"
             return context
 
-        # If the user has ratings, proceed with recommendation logic
-        ratings_df = pd.DataFrame(list(user_ratings.values('user_id', 'book_id', 'rating')))
+        # Get the current user's reviews
+        user_reviews = reviews.filter(user=self.request.user)
 
-        # Create a pivot table of users and their ratings
-        ratings_pivot = ratings_df.pivot(index='user_id', columns='book_id', values='rating').fillna(0)
+        if not user_reviews.exists():
+            context['recommended_books'] = None
+            context['no_ratings_message'] = "No recommendations available. Start rating books to get personalized suggestions!"
+            return context
 
-        # Compute similarity between users
-        user_similarity = cosine_similarity(ratings_pivot)
-        user_similarity_df = pd.DataFrame(user_similarity, index=ratings_pivot.index, columns=ratings_pivot.index)
+        # Get the latest rated book by the user
+        latest_review = user_reviews.order_by('-created_at').first()
+        latest_book = latest_review.book
+        user_rating = latest_review.rating
 
-        # Get the current user's similarity scores
-        current_user = self.request.user
-        if current_user.id in user_similarity_df.index:
-            similar_users = user_similarity_df[current_user.id].sort_values(ascending=False)
-
-            # Recommend books rated highly by similar users
-            similar_user_ids = similar_users.index[1:6]  # Top 5 similar users
-            recommended_books = Rating.objects.filter(
-                user_id__in=similar_user_ids, rating__gte=4
-            ).values_list('book', flat=True)
-            context['recommended_books'] = Book.objects.filter(id__in=recommended_books).distinct()
+        # Recommendation logic
+        if user_rating >= 3:
+            # Recommend books by the same author or genre
+            recommended_books = Book.objects.filter(
+                models.Q(author=latest_book.author) | models.Q(genre=latest_book.genre)
+            ).exclude(id=latest_book.id).distinct()
         else:
-            context['recommended_books'] = Book.objects.none()
+            # Recommend books of different genres/authors
+            recommended_books = Book.objects.exclude(
+                models.Q(author=latest_book.author) | models.Q(genre=latest_book.genre)
+            ).distinct()
 
+        # Attach recommendations to context
+        context['recommended_books'] = recommended_books
         return context
+    
 
 class ProfileView(TemplateView):
     template_name = 'profile.html'
 
-class ReviewsView(TemplateView):
-    template_name = 'reviews.html'
+class ReviewsView(View):
+    def get(self, request):
+        reviews = Review.objects.all()  # Fetch all reviews
+        return render(request, 'reviews.html', {'reviews': reviews, 'message': 'No reviews yet.'})
 
-    def get(self, request, *args, **kwargs):
-        # Get the book from the URL or pass an error message
-        book_id = self.kwargs.get('book_id')
-        book = Book.objects.get(id=book_id)
-        
-        # Get all reviews for this book
-        reviews = Review.objects.filter(book=book)
+class NewReviewView(View):
+    def get(self, request):
+        form = ReviewForm()  # Create a blank form
+        return render(request, 'new_review.html', {'form': form})
 
-        # If the user has rated the book, fetch their rating
-        user_rating = Rating.objects.filter(user=request.user, book=book).first()
-
-        # Pass reviews and the user's rating to the template
-        return render(request, self.template_name, {
-            'book': book,
-            'reviews': reviews,
-            'user_rating': user_rating,
-            'form': ReviewForm(),
-        })
-
-    def post(self, request, *args, **kwargs):
-        # Handle form submission for a new review
-        book_id = self.kwargs.get('book_id')
-        book = Book.objects.get(id=book_id)
-
-        # Handle review form submission
+    def post(self, request):
         form = ReviewForm(request.POST)
         if form.is_valid():
-            # Save the review
+            # Get or create the book based on the book name
+            book_name = form.cleaned_data['book_name']
+            book, created = Book.objects.get_or_create(title=book_name)
+
+            # Save the review with the book
             review = form.save(commit=False)
-            review.user = request.user
             review.book = book
+            review.user = request.user  # Associate the review with the logged-in user
             review.save()
 
-            # Save the rating
-            rating = Rating.objects.filter(user=request.user, book=book).first()
-            if rating:
-                rating.rating = form.cleaned_data['rating']
-                rating.save()
-            else:
-                Rating.objects.create(user=request.user, book=book, rating=form.cleaned_data['rating'])
-
-            messages.success(request, 'Your review has been added!')
-            return redirect('reviews', book_id=book.id)
-
-        return render(request, self.template_name, {'form': form, 'book': book})
+            return redirect('reviews')  # Redirect back to the reviews page
+        return render(request, 'new_review.html', {'form': form})
+    
 
 class BookshelfView(TemplateView):
     template_name = 'bookshelf.html'

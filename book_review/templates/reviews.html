@@ -26,41 +26,31 @@
         </div>
     </nav>
     
-    <!-- Main Content -->
     <main>
         <h1>Book Reviews</h1>
-        
-        <!-- Display Reviews -->
+
         <div class="review-list">
             {% if reviews %}
                 {% for review in reviews %}
                     <div class="review-card">
                         <div class="review-header">
                             <span class="review-title">{{ review.book.title }}</span>
-                            <span class="review-date">{{ review.created_at|date:"F j, Y" }}</span>
+                            <span class="review-date">{{ review.created_at|date:"F d, Y" }}</span>
                         </div>
                         <div class="review-body">
-                            <p>"{{ review.comment }}"</p>
-                            <p><strong>Rating:</strong> {{ review.rating }} / 5</p>
+                            <p>{{ review.comment }}</p>
+                            <p><strong>Rating:</strong> {{ review.rating }}</p>
                         </div>
                     </div>
                 {% endfor %}
             {% else %}
-                <p>No reviews yet. Start by adding your review!</p>
+                <p>{{ message }}</p>
             {% endif %}
         </div>
 
-        <!-- Add Review Form -->
-        <h2>Add Your Review</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Submit Review</button>
-        </form>
-
+        <a href="{% url 'new_review' %}">Write a New Review</a>  <!-- Link to the new review page -->
     </main>
 
     <script src="{% static 'js/scripts.js' %}"></script>
-
 </body>
 </html>
