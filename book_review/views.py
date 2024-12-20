@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Profile, Book, Review
+from .models import Profile, Book, Review, Bookshelf
 from .serializers import BookSerializer, ReviewSerializer
 from django.views.generic import TemplateView
 from django.shortcuts import render
@@ -25,6 +25,9 @@ import os
 from dotenv import load_dotenv
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.views.generic import ListView
+from django.http import JsonResponse
+
 
 
 load_dotenv()
@@ -222,8 +225,27 @@ class NewReviewView(View):
         return render(request, 'new_review.html', {'form': form})
     
 
-class BookshelfView(TemplateView):
-    template_name = 'bookshelf.html'
+class BookshelfView(LoginRequiredMixin, View):
+    def get(self, request):
+        # Get the bookshelf of the logged-in user
+        bookshelf = Bookshelf.objects.filter(user=request.user).first()
+        books = bookshelf.books.all() if bookshelf else []
+        return render(request, 'bookshelf.html', {'bookshelf': books})
+
+    def post(self, request):
+        # Handle adding a book to the bookshelf
+        book_id = request.POST.get('book_id')  # Get book_id from form data
+        if not book_id:
+            return JsonResponse({'message': 'Book ID is required'}, status=400)
+
+        try:
+            book = Book.objects.get(id=book_id)
+            bookshelf, created = Bookshelf.objects.get_or_create(user=request.user)
+            bookshelf.books.add(book)
+            return JsonResponse({'message': 'Book added to bookshelf successfully'})
+        except Book.DoesNotExist:
+            return JsonResponse({'message': 'Book not found'}, status=404)
+
 
 class BrowseView(TemplateView):
     template_name = 'browse.html'

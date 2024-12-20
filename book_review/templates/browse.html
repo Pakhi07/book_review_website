@@ -58,13 +58,16 @@
             {% if books %}
                 {% for book in books %}
                     <div class="book-item">
-                        <h3>{{ book.volumeInfo.title }}</h3>
-                        <p><strong>Author:</strong> {{ book.volumeInfo.authors|join:", " }}</p>
-                        <p><strong>Genre:</strong> {{ book.volumeInfo.categories|join:", " }}</p>
-                        <p><strong>Description:</strong> {{ book.volumeInfo.description|truncatewords:30 }}</p>
                         {% if book.volumeInfo.imageLinks %}
                             <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" alt="Book Cover">
                         {% endif %}
+                        <h3>{{ book.volumeInfo.title }}</h3>
+                        <p><strong>Author:</strong> {{ book.volumeInfo.authors|join:", " }}</p>
+                        <p><strong>Genre:</strong> {{ book.volumeInfo.categories|join:", " }}</p>
+                        <p><strong>Description:</strong> {{ book.volumeInfo.description|truncatewords:20 }}</p>
+                        <button class="add-to-bookshelf" onclick="addToBookshelf(this)" data-book-id="{{ book.id }}">
+                            <span>+</span> Bookshelf
+                        </button>
                     </div>
                 {% endfor %}
             {% else %}
@@ -74,5 +77,6 @@
     </main>
 
     <script src="{% static 'js/browse.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
 </body>
 </html>

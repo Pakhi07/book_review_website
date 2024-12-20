@@ -4,20 +4,49 @@ function toggleSidebar() {
 }
 
 function addToBookshelf(button) {
-    const bookItem = button.parentElement.parentElement;
-    const title = bookItem.dataset.title;
-    const desc = bookItem.dataset.desc;
+    const bookId = button.getAttribute('data-book-id');  // Extract book ID from the button
+    const csrfToken = getCookie('csrftoken');  // Get CSRF token
+    console.log('CSRF Token:', csrfToken);
 
-    // Retrieve bookshelf from localStorage
-    let bookshelf = JSON.parse(localStorage.getItem('bookshelf')) || [];
-    
-    // Add new book
-    bookshelf.push({ title, desc });
 
-    // Save back to localStorage
-    localStorage.setItem('bookshelf', JSON.stringify(bookshelf));
+    // Send the book_id as a URL-encoded form data
+    const formData = new URLSearchParams();
+    formData.append('book_id', bookId);  // Append the book_id to the form data
 
-    alert(`${title} has been added to your bookshelf!`);
+    fetch('/bookshelf/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,  // Pass CSRF token in headers
+            'Content-Type': 'application/x-www-form-urlencoded'  // Set the content type to URL-encoded form data
+        },
+        body: formData.toString()  // Send form data as a string
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);  // Display success message
+        } else {
+            console.log('Unexpected response:', data);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+// Helper function to get the CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -29,7 +29,17 @@
     <main>
         <h1>Your Bookshelf</h1>
         <div class="bookshelf-list">
-            <!-- Added books will appear here -->
+            {% for book in books %}
+                <div class="book-item">
+                    <img src="{{ book.image_url }}" alt="{{ book.title }}">
+                    <div class="book-details">
+                        <h3>{{ book.title }}</h3>
+                        <p>{{ book.author }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Your bookshelf is empty.</p>
+            {% endfor %}
         </div>
     </main>
 

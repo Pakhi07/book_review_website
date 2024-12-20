@@ -31,3 +31,9 @@ class Review(models.Model):
     def __str__(self):
         return f"Review by {self.user.username} for {self.book.title}"
 
+class Bookshelf(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    books = models.ManyToManyField(Book)
+
+    def __str__(self):
+        return f"{self.user.username}'s Bookshelf"

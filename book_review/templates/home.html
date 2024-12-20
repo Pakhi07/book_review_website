@@ -38,18 +38,16 @@
 
         <h2>New Releases This Week</h2>
 
-        <div class="book-slider new-releases-slider">
+        <div class="book-list book-slider new-releases-slider" id="book-list">
             {% for book in new_releases %}
-                <div class="book-item" data-title="{{ book.title }}" data-desc="{{ book.description }}">
+                <div class="book-item">
                     <img src="{{ book.cover_image }}" alt="{{ book.title }} Cover">
-                    <div class="book-details">
                         <h3>{{ book.title }}</h3>
                         <p><strong>Author:</strong> {{ book.author }}</p>
                         <p>{{ book.description|truncatewords:20 }}</p>
-                        <button class="add-to-bookshelf" onclick="addToBookshelf(this)">
+                        <button class="add-to-bookshelf" onclick="addToBookshelf(this)" data-book-id="{{ book.id }}">
                             <span>+</span> Bookshelf
                         </button>
-                    </div>
                 </div>
             {% endfor %}
         </div>
