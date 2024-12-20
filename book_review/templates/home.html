@@ -61,12 +61,12 @@
         <div class="book-slider recommended-books-slider">
             {% if recommended_books %}
                 {% for book in recommended_books %}
-                    <div class="book-item">
-                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }} Cover">
-                            <h3>{{ book.title }}</h3>
-                            <p><strong>Author:</strong> {{ book.author }}</p>
+                    <div class="book-item" style="max-height: 400px;">
+                        <img src="{{ book.cover_image }}" alt="{{ book.title }} Cover">
+                            <h3>{{ book.title|truncatewords:5 }}</h3>
+                            <p><strong>Author:</strong> {{ book.author|truncatewords:5 }}</p>
                             <p><strong>Genre:</strong> {{ book.genre }}</p>
-                            <p>{{ book.description|truncatewords:20 }}</p>
+                            <p><strong>Description:</strong> {{ book.description|truncatewords:15 }}</p>
                             <button class="add-to-bookshelf" onclick="addToBookshelf(this)" data-book-id="{{ book.id }}">
                                 <span>+</span> Bookshelf
                             </button>
