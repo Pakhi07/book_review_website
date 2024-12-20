@@ -228,27 +228,35 @@ class NewReviewView(View):
     
 
 class BookshelfView(View):
-    template_name = 'book_shelf.html'
-    # def post(self, request, *args, **kwargs):
-    #     try:
-    #         # Load the JSON data from the request body
-    #         data = json.loads(request.body)
-    #         book_id = data.get('book_id')
+    template_name = 'bookshelf.html'
+    def get(self, request, *args, **kwargs):
+        # Assuming that the books are related to the user, for example:
+        # Get the user's bookshelf (assuming Bookshelf model is related to User)
+        bookshelf = Bookshelf.objects.get(user=request.user)
+        books = bookshelf.books.all()  # Get all books in the user's bookshelf
 
-    #         if not book_id:
-    #             return JsonResponse({"message": "Book ID is missing."}, status=400)
+        # Render the template with the books data
+        return render(request, self.template_name, {'books': books})
+    def post(self, request, *args, **kwargs):
+        try:
+            # Load the JSON data from the request body
+            data = json.loads(request.body)
+            book_id = data.get('book_id')
 
-    #         # Query the Book model using the book_id as a string
-    #         book = Book.objects.get(id=book_id)
-    #         bookshelf = Bookshelf.objects.get(user=request.user)
-    #         bookshelf.books.add(book)
+            if not book_id:
+                return JsonResponse({"message": "Book ID is missing."}, status=400)
 
-    #         return JsonResponse({"message": "Book added to bookshelf."}, status=200)
+            # Query the Book model using the book_id as a string
+            book = Book.objects.get(id=book_id)
+            bookshelf = Bookshelf.objects.get(user=request.user)
+            bookshelf.books.add(book)
 
-    #     except Book.DoesNotExist:
-    #         return JsonResponse({"message": "Book not found."}, status=404)
-    #     except Exception as e:
-    #         return JsonResponse({"message": str(e)}, status=500)
+            return JsonResponse({"message": "Book added to bookshelf."}, status=200)
+
+        except Book.DoesNotExist:
+            return JsonResponse({"message": "Book not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"message": str(e)}, status=500)
         
 
 class BrowseView(TemplateView):
