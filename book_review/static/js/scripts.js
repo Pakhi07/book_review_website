@@ -39,22 +39,22 @@ function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]').value;
 }
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     if (document.body.contains(document.querySelector('.bookshelf-list'))) {
-//         const bookshelf = JSON.parse(localStorage.getItem('bookshelf')) || [];
-//         const bookshelfList = document.querySelector('.bookshelf-list');
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.body.contains(document.querySelector('.bookshelf-list'))) {
+        const bookshelf = JSON.parse(localStorage.getItem('bookshelf')) || [];
+        const bookshelfList = document.querySelector('.bookshelf-list');
 
-//         bookshelf.forEach(book => {
-//             const bookItem = document.createElement('div');
-//             bookItem.classList.add('book-item');
-//             bookItem.innerHTML = `
-//                 <h3>${book.title}</h3>
-//                 <p>${book.desc}</p>
-//             `;
-//             bookshelfList.appendChild(bookItem);
-//         });
-//     }
-// });
+        bookshelf.forEach(book => {
+            const bookItem = document.createElement('div');
+            bookItem.classList.add('book-item');
+            bookItem.innerHTML = `
+                <h3>${book.title}</h3>
+                <p>${book.desc}</p>
+            `;
+            bookshelfList.appendChild(bookItem);
+        });
+    }
+});
 
 function toggleNav() {
     document.querySelector('nav').classList.toggle('collapsed');

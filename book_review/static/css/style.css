@@ -318,6 +318,13 @@ h2 {
     background-color: #726258;
 }
 
+.genre-tag.active {
+    background-color: #726258;
+    color: #ffffff;
+    font-weight: bold;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 /* Review List */
 .review-list {
     display: flex;

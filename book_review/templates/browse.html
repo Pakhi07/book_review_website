@@ -48,7 +48,6 @@
                 <a href="{% url 'browse' %}?genre=mystery" class="genre-tag">Mystery</a>
                 <a href="{% url 'browse' %}?genre=romance" class="genre-tag">Romance</a>
                 <a href="{% url 'browse' %}?genre=fantasy" class="genre-tag">Fantasy</a>
-                <a href="{% url 'browse' %}?genre=non-fiction" class="genre-tag">Non-Fiction</a>
                 <a href="{% url 'browse' %}?genre=biography" class="genre-tag">Biography</a>
                 <a href="{% url 'browse' %}?genre=science" class="genre-tag">Science</a>
             </div>
@@ -64,7 +63,6 @@
                         {% endif %}
                         <h3>{{ book.volumeInfo.title }}</h3>
                         <p><strong>Author:</strong> {{ book.volumeInfo.authors|join:", " }}</p>
-                        <p><strong>Genre:</strong> {{ book.volumeInfo.categories|join:", " }}</p>
                         <p><strong>Description:</strong> {{ book.volumeInfo.description|truncatewords:20 }}</p>
                         <button class="add-to-bookshelf" onclick="addToBookshelf(this)" data-book-id="{{ book.id }}">
                             <span>+</span> Bookshelf
@@ -78,6 +76,31 @@
     </main>
 
     <script src="{% static 'js/browse.js' %}"></script>
-    <script src="{% static 'js/scripts.js' %}"></script>
+    <!-- <script src="{% static 'js/scripts.js' %}"></script> -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+    const genreTags = document.querySelectorAll(".genre-tag");
+
+    genreTags.forEach(tag => {
+        tag.addEventListener("click", function(event) {
+            // Remove the 'active' class from all genre tags
+            genreTags.forEach(tag => tag.classList.remove("active"));
+
+            // Add the 'active' class to the clicked tag
+            this.classList.add("active");
+        });
+    });
+
+    // Highlight the genre based on the query parameter
+    const params = new URLSearchParams(window.location.search);
+    const genre = params.get("genre");
+    if (genre) {
+        const activeTag = document.querySelector(`.genre-tag[href*="genre=${genre}"]`);
+        if (activeTag) {
+            activeTag.classList.add("active");
+        }
+    }
+});
+    </script>
 </body>
 </html>
