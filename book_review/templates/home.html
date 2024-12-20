@@ -1,5 +1,8 @@
 {% load static %}
 
+{% csrf_token %}
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,11 +43,13 @@
 
         <div class="book-list book-slider new-releases-slider" id="book-list">
             {% for book in new_releases %}
-                <div class="book-item">
-                    <img src="{{ book.cover_image }}" alt="{{ book.title }} Cover">
-                        <h3>{{ book.title }}</h3>
+                <div class="book-item" style="max-height: 400px;">
+                    {% if book.cover_image %}
+                    <img src="{{ book.cover_image }}" alt="Book Cover">
+                    {% endif %}
+                        <h3>{{ book.title|truncatewords:15 }}</h3>
                         <p><strong>Author:</strong> {{ book.author }}</p>
-                        <p>{{ book.description|truncatewords:20 }}</p>
+                        <p><strong>Description:</strong> {{ book.description|truncatewords:20 }}</p>
                         <button class="add-to-bookshelf" onclick="addToBookshelf(this)" data-book-id="{{ book.id }}">
                             <span>+</span> Bookshelf
                         </button>
@@ -58,12 +63,13 @@
                 {% for book in recommended_books %}
                     <div class="book-item">
                         <img src="{{ book.cover_image.url }}" alt="{{ book.title }} Cover">
-                        <div class="book-details">
                             <h3>{{ book.title }}</h3>
                             <p><strong>Author:</strong> {{ book.author }}</p>
                             <p><strong>Genre:</strong> {{ book.genre }}</p>
                             <p>{{ book.description|truncatewords:20 }}</p>
-                        </div>
+                            <button class="add-to-bookshelf" onclick="addToBookshelf(this)" data-book-id="{{ book.id }}">
+                                <span>+</span> Bookshelf
+                            </button>
                     </div>
                 {% endfor %}
             {% elif no_ratings_message %}
@@ -118,7 +124,38 @@
 
 
     </script>
-    <script src="{% static 'js/scripts.js' %}"></script>
+    <script type="text/javascript">
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;  // Get CSRF token from the page
+        const bookshelfUrl = "{% url 'bookshelf' %}";
+    
+        function addToBookshelf(button) {
+            const bookId = button.dataset.bookId;  // Get book ID from the button's data attribute
+    
+            if (!bookId) {
+                console.error("Book ID is missing.");
+                alert("Book ID is missing.");
+                return;
+            }
+    
+            // Send the book_id in the request body
+            fetch(bookshelfUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify({ book_id: bookId }),  // Send the book_id as a string
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error(error);
+                alert("An error occurred while adding the book.");
+            });
+        }
+    </script>
 
 </body>
 </html>

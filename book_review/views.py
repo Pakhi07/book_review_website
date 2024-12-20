@@ -27,6 +27,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.views.generic import ListView
 from django.http import JsonResponse
+import json
 
 
 
@@ -131,6 +132,7 @@ class HomeView(TemplateView):
             # Extract book details
             new_releases = [
                 {
+                    'id': item['id'], 
                     'title': item['volumeInfo'].get('title', 'No Title'),
                     'author': ', '.join(item['volumeInfo'].get('authors', ['Unknown Author'])),
                     'description': item['volumeInfo'].get('description', 'No description available'),
@@ -225,27 +227,29 @@ class NewReviewView(View):
         return render(request, 'new_review.html', {'form': form})
     
 
-class BookshelfView(LoginRequiredMixin, View):
-    def get(self, request):
-        # Get the bookshelf of the logged-in user
-        bookshelf = Bookshelf.objects.filter(user=request.user).first()
-        books = bookshelf.books.all() if bookshelf else []
-        return render(request, 'bookshelf.html', {'bookshelf': books})
+class BookshelfView(View):
+    template_name = 'book_shelf.html'
+    # def post(self, request, *args, **kwargs):
+    #     try:
+    #         # Load the JSON data from the request body
+    #         data = json.loads(request.body)
+    #         book_id = data.get('book_id')
 
-    def post(self, request):
-        # Handle adding a book to the bookshelf
-        book_id = request.POST.get('book_id')  # Get book_id from form data
-        if not book_id:
-            return JsonResponse({'message': 'Book ID is required'}, status=400)
+    #         if not book_id:
+    #             return JsonResponse({"message": "Book ID is missing."}, status=400)
 
-        try:
-            book = Book.objects.get(id=book_id)
-            bookshelf, created = Bookshelf.objects.get_or_create(user=request.user)
-            bookshelf.books.add(book)
-            return JsonResponse({'message': 'Book added to bookshelf successfully'})
-        except Book.DoesNotExist:
-            return JsonResponse({'message': 'Book not found'}, status=404)
+    #         # Query the Book model using the book_id as a string
+    #         book = Book.objects.get(id=book_id)
+    #         bookshelf = Bookshelf.objects.get(user=request.user)
+    #         bookshelf.books.add(book)
 
+    #         return JsonResponse({"message": "Book added to bookshelf."}, status=200)
+
+    #     except Book.DoesNotExist:
+    #         return JsonResponse({"message": "Book not found."}, status=404)
+    #     except Exception as e:
+    #         return JsonResponse({"message": str(e)}, status=500)
+        
 
 class BrowseView(TemplateView):
     template_name = 'browse.html'

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+import uuid
 
 
 class Profile(models.Model):
@@ -11,6 +12,8 @@ class Profile(models.Model):
         return self.user.username
     
 class Book(models.Model):
+    id = models.CharField(max_length=50, primary_key=True)  # or use IntegerField if it's an integer
+
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
     genre = models.CharField(max_length=100)

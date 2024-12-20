@@ -1,3 +1,4 @@
+/* Global Styles */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -47,36 +48,9 @@ nav .nav-links {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding-left: 15px;
-    padding-right: 15px;
+    padding: 0 15px;
     width: fit-content;
 }
-
-
-/* Profile Icon Styling */
-.profile-icon {
-    margin-top: auto; 
-    padding: 10px;
-    margin-left: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.profile-icon img {
-    width: 15px; 
-    height: 15px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    background-color: #fcf8f5;
-    padding: 5px;
-}
-
-.profile-icon img:hover {
-    background-color: #afa09b; 
-}
-
 
 nav.collapsed .nav-links a {
     display: none;
@@ -87,13 +61,12 @@ nav.collapsed .profile-icon {
 }
 
 nav.collapsed .nav-links a::before {
-    text-indent: 0;
-    margin-right: 0;
-    display: block;
-    width: 100%;
+    content: attr(data-title);
     text-align: center;
     font-size: 18px;
     color: white;
+    display: block;
+    width: 100%;
 }
 
 nav a {
@@ -111,13 +84,35 @@ nav a:hover {
     background-color: #afa09b;
 }
 
-
 nav.collapsed .toggle-btn {
     display: block; 
 }
 
-/* Main Content */
+/* Profile Icon Styling */
+.profile-icon {
+    margin-top: auto;
+    padding: 10px;
+    margin-left: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.profile-icon img {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: #fcf8f5;
+    padding: 5px;
+}
+
+.profile-icon img:hover {
+    background-color: #afa09b;
+}
+
+/* Main Content */
 .main-content {
     width: 100%;
     padding: 20px;
@@ -139,97 +134,27 @@ nav.collapsed + main {
 /* Typography */
 h1 {
     color: #896771;
-}
-
-h2{
-    color: #726258;
-}
-h1 {
     padding: 20px 0;
     text-align: left;
     font-size: 3em;
     font-weight: bold;
     line-height: 1.2;
     border-radius: 10px;
-    margin-top: 30px;        
+    margin-top: 30px;
     margin-bottom: 20px;
 }
 
-
 h2 {
+    color: #726258;
     margin-top: 40px;
 }
 
 /* Book List */
-
 .book-slider {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Auto-fill columns */
     gap: 20px;
 }
 
-.book-list {
-    margin-top: 20px;
-}
-
-/* .book-item {
-    display: flex;
-    align-items: flex-start;
-    background-color: #ecf0f1;
-    border: 1px solid #bdc3c7;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-} */
-
-.book-item {
-    flex: 1 1 calc(10% - 10px);  /* Adjust width to fit 10 items in a row */
-    max-width: calc(10% - 10px);  /* Limit the width of each book item */
-    margin-right: 10px;  /* Add margin between items */
-    box-sizing: border-box;  /* Prevent items from overflowing */
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    background-color: #ffffff;
-    border: 1px solid #bdc3c7;
-    border-radius: 10px;
-    height: 100%;
-    box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.1);
-}
-
-
-.book-item img {
-    width: 100%;
-    max-height: 250px;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-
-/* .book-details h3 {
-    color: #3a332b;
-    margin: 0;
-} */
-
-.book-details {
-    padding: 10px;
-}
-
-.book-details h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-.book-details p {
-    color: #7f8c8d;
-    font-size: 0.9em;
-}
-
-/* Responsive Layout for Book Cards */
 .book-list {
     display: flex;
     flex-wrap: wrap;
@@ -237,76 +162,61 @@ h2 {
     gap: 20px;
 }
 
-/* Book Item */
 .book-item {
-    flex: 1 1 calc(20% - 20px); 
-    max-width: 250px; 
-    height: auto; 
+    width: 200px; /* Set a fixed width */
+    max-height: 620px;
+    overflow: hidden;
+    margin: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: space-between;
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background-color: #ffffff;
-    border: 1px solid #bdc3c7;
-    border-radius: 10px;
-    padding: 10px;
-    flex-grow: 1;
-    box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.1);
 }
-
 
 .book-item:hover {
     transform: translateY(-5px);
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Book Item Image */
 .book-item img {
-    width: 100%;
-    max-width: 200px;  /* Set a max-width for the image */
+    width: auto;
+    max-height: 100px;
     height: auto;
     border-radius: 8px;
     margin-bottom: 10px;
-    object-fit: cover;  /* Ensures the image is properly scaled */
-    display: block;  /* Removes any extra space below the image */
+    object-fit: cover;
+    display: block;
     margin-left: auto;
-    margin-right: auto;  /* Centers the image horizontally */
-}   
-
-.book-item .book-details {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex-grow: 1;
-    align-items: center;
+    margin-right: auto;
 }
 
-/* Book Details */
 .book-details {
-    margin-top: 10px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     flex-grow: 1;
+    margin-top: 10px;
 }
 
 .book-details h3 {
-    font-size: 1.2em; 
+    font-size: 1.2em;
     color: #3a332b;
 }
 
 .book-details p {
     font-size: 0.9em;
     color: #7f8c8d;
-    margin-top: auto; 
+    margin-top: auto;
 }
-
 
 /* Add to Bookshelf Button */
 .add-to-bookshelf {
-    background-color: #896771;
-    color: white;
+    background-color: transparent;
+    color: #896771;
     border: 2px solid #896771;
     padding: 10px 20px;
     margin-top: 10px;
@@ -317,34 +227,24 @@ h2 {
     font-size: 14px;
     display: flex;
     align-items: center;
-    justify-content: center; 
+    justify-content: center;
     gap: 8px;
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
-.add-to-bookshelf {
-    background-color: transparent; 
-    color: #896771; 
-    border: 2px solid #896771; 
-}
-
-.add-to-bookshelf span {
-    font-size: 20px;
-    font-weight: bold;
-}
-
 .add-to-bookshelf:hover {
-    background-color: #896771; 
+    background-color: #896771;
     color: white;
-    transform: scale(1.05); 
+    transform: scale(1.05);
 }
 
-
+/* No Recommendations */
 .no-recommendations {
     text-align: center;
     padding: 20px;
     background-color: #f0f0f0;
     border-radius: 8px;
+    max-height: 150px;
 }
 
 /* Bookshelf Page Layout */
@@ -360,35 +260,6 @@ h2 {
     flex: 1 1 calc(30% - 20px);
     max-width: 300px;
 }
-
-/* Media Queries for Smaller Screens */
-@media (max-width: 768px) {
-    .book-item {
-        flex: 1 1 calc(45% - 20px); 
-    }
-
-    main {
-        margin-left: 60px; 
-    }
-
-    nav.collapsed + main {
-        margin-left: 60px;
-    }
-}
-
-@media (max-width: 480px) {
-    .book-item {
-        flex: 1 1 calc(50% - 10px);
-    }
-
-    .add-to-bookshelf {
-        padding: 8px 15px;
-        font-size: 12px;
-    }
-}
-
-
-
 
 /* Search Bar */
 .search-bar {
@@ -458,14 +329,14 @@ h2 {
 
 .review-card {
     width: 100%;
-    max-width: 900px; 
+    max-width: 900px;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
     padding: 20px;
     transition: box-shadow 0.3s ease;
     margin: 0 auto;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 .review-card:hover {
@@ -500,11 +371,11 @@ h2 {
 /* Responsive Design for Smaller Screens */
 @media (max-width: 768px) {
     main {
-        margin-left: 60px; 
+        margin-left: 60px;
     }
 
     .review-card {
-        max-width: 100%; 
+        max-width: 100%;
         padding: 15px;
     }
 }
@@ -520,5 +391,14 @@ h2 {
 
     .review-body {
         font-size: 1em;
+    }
+
+    .book-item {
+        flex: 1 1 calc(50% - 10px);
+    }
+
+    .add-to-bookshelf {
+        padding: 8px 15px;
+        font-size: 12px;
     }
 }
